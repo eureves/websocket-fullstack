@@ -1,0 +1,17 @@
+<div style="text-align:center">
+  <h1>Welcome to {{ title() }}!</h1>
+  <p>WebSocket connection status: <span id="status">Disconnected</span></p>
+  
+  <button (click)="sendMessage()" style="margin: 10px;">Send Message</button>
+  
+  <div style="margin-top: 20px;">
+    <h2>Messages:</h2>
+    <ul>
+      @for (message of messages(); track message) {
+        @if (message) {
+          <li><strong>{{ message.content }}</strong> - {{ message.timestamp }} (Random: <span style="color: blue;">{{ message.randomNumber }}</span>)</li>
+        }
+      }
+    </ul>
+  </div>
+</div>

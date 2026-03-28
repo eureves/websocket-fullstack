@@ -1,0 +1,33 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy app source
+COPY frontend/src ./src
+COPY frontend/angular.json .
+COPY frontend/tsconfig.app.json .
+COPY frontend/tsconfig.json .
+COPY frontend/tsconfig.spec.json .
+COPY frontend/.editorconfig .
+COPY frontend/.gitignore .
+COPY frontend/README.md .
+COPY frontend/public ./public
+
+# Build the Angular app
+RUN npm run build --prod
+
+# Use nginx to serve the built app
+FROM nginx:alpine
+# Copy the built app
+COPY --from=0 /app/dist/frontend/browser /usr/share/nginx/html
+
+# Use a simple nginx config for development
+COPY nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
