@@ -14,7 +14,7 @@ export class WebsocketService {
   connect(): void {
     // Connect to your WebSocket server
     // Replace with your actual WebSocket server URL
-    const wsUrl = 'ws://localhost:8080/ws';
+    const wsUrl = `ws://${location.hostname}:8080/ws`;
 
     try {
       this.socket = new WebSocket(wsUrl);
