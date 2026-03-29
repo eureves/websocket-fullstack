@@ -216,6 +216,8 @@ func joinRoom(client *Client, roomName string) {
 		Timestamp: time.Now().Format(time.RFC3339),
 	}, nil)
 
+	broadcastUserList(roomName)
+
 	sendToClient(client, Message{
 		Type:      TypeJoin,
 		Room:      roomName,
@@ -255,6 +257,10 @@ func leaveRoom(client *Client) {
 		UserCount: userCount,
 		Timestamp: time.Now().Format(time.RFC3339),
 	}, nil)
+
+	if userCount > 0 {
+		broadcastUserList(roomName)
+	}
 
 	if userCount == 0 {
 		roomsMutex.Lock()
@@ -311,6 +317,23 @@ func broadcastRoomList() {
 	for _, client := range clients {
 		sendToClient(client, msg)
 	}
+}
+
+func broadcastUserList(roomName string) {
+	roomsMutex.RLock()
+	_, exists := rooms[roomName]
+	roomsMutex.RUnlock()
+
+	if !exists {
+		return
+	}
+
+	msg := Message{
+		Type:  TypeUserList,
+		Users: getRoomUsers(roomName),
+	}
+
+	broadcastToRoom(roomName, msg, nil)
 }
 
 func sendToClient(client *Client, msg Message) {
