@@ -108,6 +108,10 @@ export class WebsocketService {
     this.sendMessage({ type: 'chat', content });
   }
 
+  clearMessages(): void {
+    this.messagesSubject.next(null);
+  }
+
   fetchRooms(): void {
     this.http
       .get<{ rooms: Room[] }>(`${this.apiBaseUrl}/rooms`)

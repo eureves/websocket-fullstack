@@ -62,12 +62,20 @@ export class App implements OnInit, OnDestroy {
   createAndJoinRoom(): void {
     const roomName = this.roomNameControl.value?.trim();
     if (roomName) {
+      this.currentRoom.set(null);
+      this.users.set([]);
+      this.messages.set([]);
+      this.websocketService.clearMessages();
       this.websocketService.connect(roomName);
       this.roomNameControl.reset();
     }
   }
 
   joinRoom(roomName: string): void {
+    this.currentRoom.set(null);
+    this.users.set([]);
+    this.messages.set([]);
+    this.websocketService.clearMessages();
     this.websocketService.connect(roomName);
   }
 
@@ -75,6 +83,8 @@ export class App implements OnInit, OnDestroy {
     this.websocketService.leaveRoom();
     this.currentRoom.set(null);
     this.users.set([]);
+    this.messages.set([]);
+    this.websocketService.clearMessages();
     this.websocketService.connect();
   }
 
