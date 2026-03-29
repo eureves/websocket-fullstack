@@ -1,24 +1,93 @@
-<div style="text-align: center">
-  <h1>Welcome to {{ title() }}!</h1>
-  <p>WebSocket connection status: <span id="status">Disconnected</span></p>
+<div style="text-align: center; padding: 20px">
+  <h1>{{ title() }}</h1>
+  <p>
+    Status:
+    <span [style.color]="connectionStatus() === 'Connected' ? 'green' : 'red'"
+      >{{ connectionStatus() }}</span
+    >
+  </p>
 
-  <input
-    [formControl]="messageControl"
-    placeholder="Type a message..."
-    type="text"
-    style="margin-top: 20px; width: 300px; padding: 8px"
-  />
-  <button (click)="sendMessage()" style="margin: 15px">Send Message</button>
+  @if (!currentRoom()) {
+  <div style="margin: 20px; padding: 20px; border: 1px solid #ccc; border-radius: 8px">
+    <h2>Available Rooms</h2>
 
-  <div style="margin-top: 20px">
-    <h2>Messages:</h2>
-    <ul>
-      @for (msg of messages(); track msg) { @if (msg) {
-      <li>
-        <strong>{{ msg.content }}</strong> - {{ msg.timestamp }} (Random:
-        <span style="color: blue">{{ msg.randomNumber }}</span>)
+    @if (rooms().length > 0) {
+    <ul style="list-style: none; padding: 0">
+      @for (room of rooms(); track room.name) {
+      <li style="margin: 10px 0">
+        <strong>{{ room.name }}</strong> - {{ room.userCount }} user(s)
+        <button (click)="joinRoom(room.name)" style="margin-left: 10px">Join</button>
       </li>
-      } }
+      }
     </ul>
+    } @else {
+    <p>No rooms available. Create one below!</p>
+    }
+
+    <div style="margin-top: 20px">
+      <h3>Create New Room</h3>
+      <input
+        [formControl]="roomNameControl"
+        placeholder="Room name..."
+        type="text"
+        style="padding: 8px; width: 200px"
+      />
+      <button (click)="createAndJoinRoom()" style="margin-left: 10px">Create & Join</button>
+    </div>
   </div>
+  } @else {
+  <div style="margin: 20px">
+    <div style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 10px">
+      <strong>Current Room:</strong> {{ currentRoom() }}
+      <span style="margin-left: 15px">|</span>
+      <span style="margin-left: 15px">{{ users().length }} user(s) online</span>
+      <button (click)="leaveRoom()" style="margin-left: 15px">Leave Room</button>
+    </div>
+
+    <div style="margin-bottom: 20px">
+      <h3>Users in Room</h3>
+      <ul style="list-style: none; padding: 0">
+        @for (user of users(); track user) {
+        <li>{{ user }}</li>
+        }
+      </ul>
+    </div>
+
+    <div style="display: flex; justify-content: center; gap: 10px">
+      <input
+        [formControl]="messageControl"
+        placeholder="Type a message..."
+        type="text"
+        style="padding: 8px; width: 300px"
+        (keyup.enter)="sendMessage()"
+      />
+      <button (click)="sendMessage()">Send</button>
+    </div>
+
+    <div
+      style="
+        margin-top: 20px;
+        text-align: left;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+      "
+    >
+      <h3>Messages:</h3>
+      <ul style="list-style: none; padding: 0">
+        @for (msg of messages(); track $index) { @if (msg.type === 'chat' || msg.type === 'system')
+        {
+        <li style="padding: 8px; border-bottom: 1px solid #eee">
+          @if (msg.type === 'system') {
+          <em style="color: #666">{{ msg.content }} - {{ msg.timestamp }}</em>
+          } @else {
+          <strong>{{ msg.userId }}:</strong> <br/> {{ msg.content }}<br />
+          <span style="color: #999; font-size: 0.8em">  {{ msg.timestamp }}</span>
+          }
+        </li>
+        } }
+      </ul>
+    </div>
+  </div>
+  }
 </div>
