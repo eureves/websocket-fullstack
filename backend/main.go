@@ -199,15 +199,15 @@ func joinRoom(client *Client, roomName string) {
 	}
 	roomsMutex.Unlock()
 
-	if wasNewRoom {
-		broadcastRoomList()
-	}
-
 	room.Mutex.Lock()
 	room.Clients[client] = true
 	room.Mutex.Unlock()
 
 	client.Room = roomName
+
+	if wasNewRoom {
+		broadcastRoomList()
+	}
 
 	broadcastToRoom(roomName, Message{
 		Type:      TypeSystem,
