@@ -23,6 +23,13 @@ export class App implements OnInit, OnDestroy {
 
   constructor(private websocketService: WebsocketService) {}
 
+  private clearState(): void {
+    this.currentRoom.set(null);
+    this.users.set([]);
+    this.messages.set([]);
+    this.websocketService.clearMessages();
+  }
+
   ngOnInit(): void {
     this.websocketService.rooms$.subscribe((rooms) => {
       this.rooms.set(rooms);
@@ -62,29 +69,20 @@ export class App implements OnInit, OnDestroy {
   createAndJoinRoom(): void {
     const roomName = this.roomNameControl.value?.trim();
     if (roomName) {
-      this.currentRoom.set(null);
-      this.users.set([]);
-      this.messages.set([]);
-      this.websocketService.clearMessages();
+      this.clearState();
       this.websocketService.connect(roomName);
       this.roomNameControl.reset();
     }
   }
 
   joinRoom(roomName: string): void {
-    this.currentRoom.set(null);
-    this.users.set([]);
-    this.messages.set([]);
-    this.websocketService.clearMessages();
+    this.clearState();
     this.websocketService.connect(roomName);
   }
 
   leaveRoom(): void {
     this.websocketService.leaveRoom();
-    this.currentRoom.set(null);
-    this.users.set([]);
-    this.messages.set([]);
-    this.websocketService.clearMessages();
+    this.clearState();
     this.websocketService.connect();
   }
 

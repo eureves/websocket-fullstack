@@ -1,6 +1,6 @@
-import { Injectable, OnInit, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, tap } from 'rxjs';
 
 export interface Room {
   name: string;
@@ -52,14 +52,12 @@ export class WebsocketService {
       this.socket = new WebSocket(wsUrl);
 
       this.socket.onopen = () => {
-        console.log('WebSocket connected');
         this.connectionStatusSubject.next('Connected');
         this.fetchRooms();
       };
 
       this.socket.onmessage = (event) => {
         const message: WsMessage = JSON.parse(event.data);
-        console.log('WS received:', message);
         this.messagesSubject.next(message);
 
         if (message.type === 'room_list' && message.rooms) {
@@ -68,12 +66,10 @@ export class WebsocketService {
       };
 
       this.socket.onclose = () => {
-        console.log('WebSocket disconnected');
         this.connectionStatusSubject.next('Disconnected');
       };
 
-      this.socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
+      this.socket.onerror = () => {
         this.connectionStatusSubject.next('Error');
       };
     } catch (error) {
