@@ -1,84 +1,86 @@
 <div class="container">
   <h1>{{ title() }}</h1>
-  <p class="status" [class.connected]="connectionStatus() === 'Connected'" [class.disconnected]="connectionStatus() === 'Disconnected'" [class.error]="connectionStatus() === 'Error'">
+  <p
+    class="status"
+    [class.connected]="connectionStatus() === 'Connected'"
+    [class.disconnected]="connectionStatus() === 'Disconnected'"
+    [class.error]="connectionStatus() === 'Error'"
+  >
     Status: {{ connectionStatus() }}
   </p>
 
   @if (!currentRoom()) {
-  <div class="card">
-    <h2>Available Rooms</h2>
+    <div class="card">
+      <h2>Available Rooms</h2>
 
-    @if (rooms().length > 0) {
-    <ul class="room-list">
-      @for (room of rooms(); track room.name) {
-      <li>
-        <div class="room-info">
-          <span class="room-name">{{ room.name }}</span>
-          <span class="user-count">{{ room.userCount }} user(s)</span>
-        </div>
-        <button (click)="joinRoom(room.name)">Join</button>
-      </li>
+      @if (rooms().length > 0) {
+        <ul class="room-list">
+          @for (room of rooms(); track room.name) {
+            <li>
+              <div class="room-info">
+                <span class="room-name">{{ room.name }}</span>
+                <span class="user-count">{{ room.userCount }} user(s)</span>
+              </div>
+              <button (click)="joinRoom(room.name)">Join</button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="empty-state">No rooms available. Create one below!</p>
       }
-    </ul>
-    } @else {
-    <p class="empty-state">No rooms available. Create one below!</p>
-    }
 
-    <div class="input-group">
-      <input
-        [formControl]="roomNameControl"
-        placeholder="Room name..."
-        type="text"
-      />
-      <button (click)="createAndJoinRoom()">Create & Join</button>
+      <div class="input-group">
+        <input [formControl]="roomNameControl" placeholder="Room name..." type="text" />
+        <button (click)="createAndJoinRoom()">Create & Join</button>
+      </div>
     </div>
-  </div>
   } @else {
-  <div class="room-header">
-    <div class="room-details">
-      <span class="current-room">Room - {{ currentRoom() }}</span>
-      <span class="separator">|</span>
-      <span class="online-count">{{ users().length }} online</span>
-      <span class="separator">|</span>
-      <span class="user-list">
-        @for (user of users(); track user) {
-        <span class="user-tag">{{ user }}</span>
-        }
-      </span>
-    </div>
-    <button class="danger" (click)="leaveRoom()">Leave</button>
-  </div>
-
-  <div class="card">
-    <div class="message-input">
-      <input
-        [formControl]="messageControl"
-        placeholder="Type a message..."
-        type="text"
-        (keyup.enter)="sendMessage()"
-      />
-      <button (click)="sendMessage()">Send</button>
+    <div class="room-header">
+      <div class="room-details">
+        <span class="current-room">Room - {{ currentRoom() }}</span>
+        <span class="separator">|</span>
+        <span class="online-count">{{ users().length }} online</span>
+        <span class="separator">|</span>
+        <span class="user-list">
+          @for (user of users(); track user) {
+            <span class="user-tag">{{ user }}</span>
+          }
+        </span>
+      </div>
+      <button class="danger" (click)="leaveRoom()">Leave</button>
     </div>
 
-    <h3>Messages</h3>
-    @if (messages().length > 0) {
-    <ul class="messages-list">
-      @for (msg of messages(); track $index) { @if (msg.type === 'chat' || msg.type === 'system')
-      {
-      <li [class.system]="msg.type === 'system'" [class.chat]="msg.type === 'chat'">
-        @if (msg.type === 'system') {
-        <span class="message-content">{{ msg.content }}</span>
-        } @else {
-        <div class="message-author">{{ msg.userId }}</div>
-        <div class="message-text">{{ msg.content }}</div>
-        }
-        <span class="message-time">{{ msg.timestamp }}</span>
-      </li>
-      } }
-    </ul>
-    } @else {
-    <p class="empty-state">No messages yet</p>
-    }
-  </div>
+    <div class="card">
+      <div class="message-input">
+        <input
+          [formControl]="messageControl"
+          placeholder="Type a message..."
+          type="text"
+          (keyup.enter)="sendMessage()"
+        />
+        <button (click)="sendMessage()">Send</button>
+      </div>
+
+      <h3>Messages</h3>
+      @if (messages().length > 0) {
+        <ul class="messages-list">
+          @for (msg of messages(); track $index) {
+            @if (msg.type === 'chat' || msg.type === 'system') {
+              <li [class.system]="msg.type === 'system'" [class.chat]="msg.type === 'chat'">
+                @if (msg.type === 'system') {
+                  <span class="message-content">{{ msg.content }}</span>
+                } @else {
+                  <div class="message-author">{{ msg.userId }}</div>
+                  <div class="message-text">{{ msg.content }}</div>
+                }
+                <span class="message-time">{{ msg.timestamp }}</span>
+              </li>
+            }
+          }
+        </ul>
+      } @else {
+        <p class="empty-state">No messages yet</p>
+      }
+    </div>
   }
 </div>
