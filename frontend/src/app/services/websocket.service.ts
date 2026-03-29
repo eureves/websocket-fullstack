@@ -28,6 +28,10 @@ export class WebsocketService {
 
   private roomsSubject = new BehaviorSubject<Room[]>([]);
   public rooms$ = this.roomsSubject.asObservable();
+
+  private connectionStatusSubject = new BehaviorSubject<string>('Disconnected');
+  public connectionStatus$ = this.connectionStatusSubject.asObservable();
+
   private apiBaseUrl = '';
   private http = inject(HttpClient);
 
@@ -49,6 +53,7 @@ export class WebsocketService {
 
       this.socket.onopen = () => {
         console.log('WebSocket connected');
+        this.connectionStatusSubject.next('Connected');
         this.fetchRooms();
       };
 
@@ -64,10 +69,12 @@ export class WebsocketService {
 
       this.socket.onclose = () => {
         console.log('WebSocket disconnected');
+        this.connectionStatusSubject.next('Disconnected');
       };
 
       this.socket.onerror = (error) => {
         console.error('WebSocket error:', error);
+        this.connectionStatusSubject.next('Error');
       };
     } catch (error) {
       console.error('Failed to connect to WebSocket:', error);

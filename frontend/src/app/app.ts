@@ -28,6 +28,10 @@ export class App implements OnInit, OnDestroy {
       this.rooms.set(rooms);
     });
 
+    this.websocketService.connectionStatus$.subscribe((status) => {
+      this.connectionStatus.set(status);
+    });
+
     this.websocketService.messages$.subscribe((message: WsMessage | null) => {
       if (message) {
         const currentMessages = this.messages();
@@ -49,7 +53,6 @@ export class App implements OnInit, OnDestroy {
     });
 
     this.websocketService.connect();
-    this.connectionStatus.set('Connected');
   }
 
   ngOnDestroy(): void {
