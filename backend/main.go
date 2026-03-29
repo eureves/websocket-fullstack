@@ -417,6 +417,15 @@ func listRoomUsers(c *gin.Context) {
 	})
 }
 
+var natoWords = []string{
+	"Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel",
+	"India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa",
+	"Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey",
+	"Xray", "Yankee", "Zulu",
+}
+
 func generateUserID() string {
-	return "user-" + time.Now().Format("150405.000000000")
+	word := natoWords[time.Now().UnixNano()%int64(len(natoWords))]
+	num := time.Now().UnixNano() % 100
+	return fmt.Sprintf("%s%02d", word, num)
 }
