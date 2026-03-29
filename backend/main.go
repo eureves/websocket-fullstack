@@ -38,6 +38,7 @@ type Message struct {
 	Users        []string    `json:"users,omitempty"`
 	Timestamp    string      `json:"timestamp,omitempty"`
 	RandomNumber int         `json:"randomNumber,omitempty"`
+	Rooms        []gin.H     `json:"rooms,omitempty"`
 }
 
 type Client struct {
@@ -188,6 +189,7 @@ func joinRoom(client *Client, roomName string) {
 
 	roomsMutex.Lock()
 	room, exists := rooms[roomName]
+	wasNewRoom := !exists
 	if !exists {
 		room = &Room{
 			Name:    roomName,
@@ -196,6 +198,10 @@ func joinRoom(client *Client, roomName string) {
 		rooms[roomName] = room
 	}
 	roomsMutex.Unlock()
+
+	if wasNewRoom {
+		broadcastRoomList()
+	}
 
 	room.Mutex.Lock()
 	room.Clients[client] = true
@@ -254,6 +260,7 @@ func leaveRoom(client *Client) {
 		roomsMutex.Lock()
 		delete(rooms, roomName)
 		roomsMutex.Unlock()
+		broadcastRoomList()
 	}
 
 	log.Printf("User %s left room %s", client.ID, roomName)
@@ -275,6 +282,34 @@ func broadcastToRoom(roomName string, msg Message, exclude *Client) {
 		if client != exclude {
 			sendToClient(client, msg)
 		}
+	}
+}
+
+func broadcastRoomList() {
+	roomsMutex.RLock()
+	defer roomsMutex.RUnlock()
+
+	roomList := make([]gin.H, 0, len(rooms))
+	for name, room := range rooms {
+		room.Mutex.RLock()
+		userCount := len(room.Clients)
+		room.Mutex.RUnlock()
+		roomList = append(roomList, gin.H{
+			"name":      name,
+			"userCount": userCount,
+		})
+	}
+
+	msg := Message{
+		Type:  TypeRoomList,
+		Rooms: roomList,
+	}
+
+	clientsMutex.RLock()
+	defer clientsMutex.RUnlock()
+
+	for _, client := range clients {
+		sendToClient(client, msg)
 	}
 }
 

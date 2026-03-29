@@ -15,6 +15,7 @@ export interface WsMessage {
   userCount?: number;
   users?: string[];
   timestamp?: string;
+  rooms?: Room[];
 }
 
 @Injectable({
@@ -56,8 +57,8 @@ export class WebsocketService {
         console.log('WS received:', message);
         this.messagesSubject.next(message);
 
-        if (message.type === 'room_list' || message.type === 'user_list') {
-          this.fetchRooms();
+        if (message.type === 'room_list' && message.rooms) {
+          this.roomsSubject.next(message.rooms);
         }
       };
 
@@ -101,9 +102,6 @@ export class WebsocketService {
   }
 
   fetchRooms(): void {
-    console.log('HEEEEEEELOOOOOOOOO');
-    console.log(this.apiBaseUrl);
-
     this.http
       .get<{ rooms: Room[] }>(`${this.apiBaseUrl}/rooms`)
       .pipe(
